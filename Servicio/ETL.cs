@@ -14,6 +14,7 @@ namespace WindowsService1.Servicio
 {
     class ETL
     {
+        ConfiguracionCorreo configCorreo = new ConfiguracionCorreo();
         NpgsqlConnection conP = new NpgsqlConnection();
         NpgsqlCommand comP = new NpgsqlCommand();
         char cod = '"';
@@ -435,7 +436,8 @@ namespace WindowsService1.Servicio
                 catch (Exception ex)
                 {
                     string error = ex.Message;
-                    throw;
+
+                    throw ex;
                 }
                 finally
                 {
@@ -659,14 +661,14 @@ namespace WindowsService1.Servicio
                     }
 
                     conP.Close();
-                    //configCorreo.EnviarCorreo("La extracción para se genero correctamente", "ETL");
+                    configCorreo.EnviarCorreo("La extracción para se genero correctamente", "ETL");
                     return cantFilaAfect;
                 }
             }
             catch (Exception ex)
             {
                 conP.Close();
-                //configCorreo.EnviarCorreo("La extracción para se genero incorrectamente", "ETL");
+                configCorreo.EnviarCorreo("La extracción para se genero incorrectamente", "ETL");
                 string error = ex.Message;
                 throw;
             }

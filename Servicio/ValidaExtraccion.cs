@@ -17,13 +17,13 @@ namespace WindowsService1.Servicio
         public ValidaExtraccion()
         {
             //Constructor
-            conP = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=192.168.1.78;Port=5432;Database=GIA;Pooling=true;");
+            conP = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=192.168.1.78;Port=5433;Database=GIA;Pooling=true;");
         }
 
         /// <summary>
         /// Busca en la tabla y recupera todos lo registros de la tabla de extracción programada
         /// </summary>
-        /// <returns>Data Table TAB_ETL_PROG</returns>
+        /// <returns>Data Table TAB_ETL_PROG</returns> 
         public DataTable FechaExtra()
         {
             string consulta = "SELECT " + cod + "INT_ID_ETL_PROG" + cod + ","

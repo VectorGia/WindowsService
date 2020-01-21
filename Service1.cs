@@ -43,38 +43,59 @@ namespace WindowsService1
 
                 List<TAB_ETL_PROG> lstExtrProg1 = new List<TAB_ETL_PROG>();
                 lstExtrProg1 = valiExtr.lstParametros();
-                int id_compania = lstExtrProg1[0].INT_ID_EMPRESA;
-                try
-                {
-                    Thread.Sleep(timeTo);
-                    Compania compania = new Compania();
 
-                    if (lstExtrProg.Count() == 0)
+                int id_compania = lstExtrProg1[0].INT_ID_EMPRESA;
+
+                int idCompania = 0;
+
+                foreach (TAB_ETL_PROG etlProg in lstExtrProg1) {
+                    id_compania = etlProg.INT_ID_EMPRESA;
+                    try
                     {
-                        //etl.CadenaConexionETL(id_compania);
-                        etl.addTAB_BALANZA(id_compania);
-                        //if (lstExtrProg[0].EXISTE == 0)
-                        //if (lstExtrProg[0].EXISTE == 0)
-                        //{
-                        //    new ETL().addTAB_BALANZA(compania);
-                        //}
-                        //else
-                        //{
-                        //    continue;
-                        //}
-                    }
-                    else
-                    {
+                        Thread.Sleep(timeTo);
                         
+                        etl.insertarTabBalanza(id_compania);
                     }
+                    catch (Exception ex)
+                    {
+                        string error = ex.Message;
+                        throw;
+                    }
+                }
+
+
+
+                //try
+                //{
+                //    Thread.Sleep(timeTo);
+                //    Compania compania = new Compania();
+
+                //    if (lstExtrProg.Count() == 0)
+                //    {
+                //        //etl.CadenaConexionETL(id_compania);
+                //        etl.addTAB_BALANZA(id_compania);
+                //        //if (lstExtrProg[0].EXISTE == 0)
+                //        //if (lstExtrProg[0].EXISTE == 0)
+                //        //{
+                //        //    new ETL().addTAB_BALANZA(compania);
+                //        //}
+                //        //else
+                //        //{
+                //        //    continue;
+                //        //}
+                //    }
+                //    else
+                //    {
+                        
+                //    }
 
                     
-                }
-                catch (Exception ex)
-                {
-                    string error = ex.Message;
-                    throw;
-                }
+                //}
+                //catch (Exception ex)
+                //{
+                //    string error = ex.Message;
+                //    throw;
+                //}
             }
         }
 

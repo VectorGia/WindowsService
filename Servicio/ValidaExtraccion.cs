@@ -17,7 +17,8 @@ namespace WindowsService1.Servicio
         public ValidaExtraccion()
         {
             //Constructor
-            conP = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=192.168.1.78;Port=5433;Database=GIA;Pooling=true;");
+            //conP = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=192.168.1.78;Port=5433;Database=GIA;Pooling=true;");
+            conP = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=127.0.0.1;Port=5432;Database=GIA;Pooling=true;");
         }
 
         /// <summary>

@@ -16,6 +16,7 @@ namespace WindowsService1
     public partial class Service1 : ServiceBase
     {
         public static bool continua = false;
+        ConfiguracionCorreo configCorreo = new ConfiguracionCorreo();
 
         public Service1()
         {
@@ -44,21 +45,31 @@ namespace WindowsService1
                 List<TAB_ETL_PROG> lstExtrProg1 = new List<TAB_ETL_PROG>();
                 lstExtrProg1 = valiExtr.lstParametros();
 
-                int id_compania = lstExtrProg1[0].INT_ID_EMPRESA;
-
+                //int id_compania = lstExtrProg1[0].INT_ID_EMPRESA;
+           
                 int idCompania = 0;
+                string nombreCompania = "";
 
                 foreach (TAB_ETL_PROG etlProg in lstExtrProg1) {
-                    id_compania = etlProg.INT_ID_EMPRESA;
+                    idCompania = etlProg.INT_ID_EMPRESA;
+                    List<Compania> lstCompania = etl.CadenaConexionETL_lst(idCompania);
+                    if (lstCompania!=null) {
+                        if (lstCompania.Count >=1)
+                        {
+                            nombreCompania = lstCompania[0].STR_NOMBRE_COMPANIA;
+                        }
+                    }
+
                     try
                     {
                         Thread.Sleep(timeTo);
                         
-                        etl.insertarTabBalanza(id_compania);
+                        etl.insertarTabBalanza(idCompania,nombreCompania);
                     }
                     catch (Exception ex)
                     {
                         string error = ex.Message;
+                        configCorreo.EnviarCorreo("Estimado Usuario : \n\n  La extracción correspondiente a la compania " + idCompania +"."+ nombreCompania + " se genero incorrectamente \n\n Mensaje de Error: \n " + ex, "ETL Extracción Balanza");
                         throw;
                     }
                 }

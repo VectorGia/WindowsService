@@ -15,6 +15,8 @@ namespace WindowsService1.Servicio
     class ETL
     {
         ConfiguracionCorreo configCorreo = new ConfiguracionCorreo();
+        Conexion.Conexion conex = new Conexion.Conexion();
+
         NpgsqlConnection conP = new NpgsqlConnection();
         NpgsqlCommand comP = new NpgsqlCommand();
         char cod = '"';
@@ -23,11 +25,12 @@ namespace WindowsService1.Servicio
         SqlCommand comSQLETL = new SqlCommand();
         DSNConfig dsnConfig = new DSNConfig();
         OdbcConnection odbcCon;
-        Conexion.Conexion conex = new Conexion.Conexion();
+
         public ETL()
         {
             //Constructor
-            conP = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=192.168.1.78;Port=5432;Database=GIA;Pooling=true;");
+      
+            conP = conex.ConnexionDB();
         }
 
         /// <summary>
@@ -40,6 +43,7 @@ namespace WindowsService1.Servicio
             string add = "SELECT " + cod + "INT_IDCOMPANIA_P" + cod + ","
                     + cod + "STR_USUARIO_ETL" + cod + ","
                     + cod + "STR_CONTRASENIA_ETL" + cod + ","
+                    + cod + "STR_NOMBRE_COMPANIA" + cod + ","
                     + cod + "STR_HOST_COMPANIA" + cod + ","
                     + cod + "STR_PUERTO_COMPANIA" + cod + ","
                     + cod + "STR_BD_COMPANIA" + cod
@@ -79,6 +83,7 @@ namespace WindowsService1.Servicio
                 Compania cia = new Compania();
                 cia.STR_USUARIO_ETL = r["STR_USUARIO_ETL"].ToString();
                 cia.STR_CONTRASENIA_ETL = r["STR_CONTRASENIA_ETL"].ToString();
+                cia.STR_NOMBRE_COMPANIA = r["STR_NOMBRE_COMPANIA"].ToString();
                 cia.STR_HOST_COMPANIA = r["STR_HOST_COMPANIA"].ToString();
                 cia.STR_PUERTO_COMPANIA = r["STR_PUERTO_COMPANIA"].ToString();
                 cia.STR_BD_COMPANIA = r["STR_BD_COMPANIA"].ToString();
@@ -435,7 +440,7 @@ namespace WindowsService1.Servicio
                 }
                 catch (Exception ex)
                 {
-                    string error = ex.Message;
+                   
 
                     throw ex;
                 }
@@ -508,8 +513,10 @@ namespace WindowsService1.Servicio
             return lstBalanza;
         }
 
-        public int insertarTabBalanza(int id_compania)
+        public int insertarTabBalanza(int id_compania,string nombreCompania)
         {
+            //conP.Open();
+            var transaction = conP.BeginTransaction();
             List<Balanza> lstBala = new List<Balanza>();
             lstBala = convertirTabBalanza(id_compania);
 
@@ -660,16 +667,19 @@ namespace WindowsService1.Servicio
                         cantFilaAfect = cantFilaAfect + Convert.ToInt32(cmd.ExecuteNonQuery());
                     }
 
+                    transaction.Commit();
                     conP.Close();
-                    configCorreo.EnviarCorreo("La extracción para se genero correctamente", "ETL");
+                    configCorreo.EnviarCorreo("Estimado Usuario : \n  La extracción correspondiente a la compania " + id_compania + "." + nombreCompania + " se genero correctamente", "ETL Extracción Balanza");
+                    
                     return cantFilaAfect;
                 }
             }
             catch (Exception ex)
             {
+                transaction.Rollback();
                 conP.Close();
-                configCorreo.EnviarCorreo("La extracción para se genero incorrectamente", "ETL");
                 string error = ex.Message;
+                configCorreo.EnviarCorreo("Estimado Usuario : \n  La extracción correspondiente a la compania " + id_compania + "." + nombreCompania + " se genero incorrectamente \n\n Mensaje de Error: \n " + ex, "ETL Extracción Balanza");
                 throw;
             }
         }

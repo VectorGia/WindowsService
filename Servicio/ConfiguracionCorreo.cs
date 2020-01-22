@@ -17,7 +17,8 @@ namespace WindowsService1.Servicio
 
         public ConfiguracionCorreo()
         {
-            con = conex.ConnexionDB("User ID=postgres;Password=omnisys;Host=192.168.1.78;Port=5432;Database=GIA;Pooling=true;");
+            //con = conex.ConnexionDB("User ID=postgres;Password=omnisys;Host=192.168.1.78;Port=5432;Database=GIA;Pooling=true;");
+            con = conex.ConnexionDB();
         }
 
         public void EnviarCorreo(string cuerpoMensaje, string tituloMensaje)
@@ -37,10 +38,16 @@ namespace WindowsService1.Servicio
             mmsg.From = new System.Net.Mail.MailAddress(listaConfiguracionCorreo[0].TEXT_FROM);
 
             System.Net.Mail.SmtpClient cliente = new System.Net.Mail.SmtpClient();
-            cliente.Credentials = new System.Net.NetworkCredential(listaConfiguracionCorreo[0].TEXT_FROM, listaConfiguracionCorreo[0].TEXT_PASSWORD);
+
+            cliente.Host = listaConfiguracionCorreo[0].TEXT_HOST;
             cliente.Port = listaConfiguracionCorreo[0].INT_PORT;
             cliente.EnableSsl = true;
-            cliente.Host = listaConfiguracionCorreo[0].TEXT_HOST;
+            cliente.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network;
+            cliente.UseDefaultCredentials = false;
+            cliente.Credentials = new System.Net.NetworkCredential(listaConfiguracionCorreo[0].TEXT_FROM, listaConfiguracionCorreo[0].TEXT_PASSWORD);
+           
+       
+
 
             string output = null;
             try

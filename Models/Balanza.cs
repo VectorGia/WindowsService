@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WindowsService1.Servicio
 {
-    class Balanza
+    public class Balanza
     {
         public Balanza()
         {

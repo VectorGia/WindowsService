@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WindowsService1.Servicio
 {
-    class Compania
+    public class Compania
     {
         public Compania()
         {

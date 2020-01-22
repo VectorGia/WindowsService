@@ -16,10 +16,10 @@ namespace WindowsService1.Conexion
 
 
 
-        public NpgsqlConnection ConnexionDB(string stringConnection)
+        public NpgsqlConnection ConnexionDB()
 
         {
-            con = new NpgsqlConnection(stringConnection);
+            con = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=127.0.0.1;Port=5432;Database=GIA;Pooling=true;");
             return con;
         }
 

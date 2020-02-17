@@ -16,22 +16,31 @@ namespace WindowsService1.Util
             //Constructor
         }
 
-        public DSN crearDSN(int id_compania)
+        public DSN crearDSN(Int64 idEmpresa)
         {
-            ETL etl = new ETL();
-            List<Compania> lstCia = etl.CadenaConexionETL_lst(id_compania);
+            ETLBalanzaDA etl = new ETLBalanzaDA();
+            List<Empresa> lstCia = etl.EmpresaConexionETL_List(idEmpresa);
 
             //Obtener los datos de la Tab_Compania para crear el DSN
             //ETLDataAccesLayer eTLDataAccesLayer = new ETLDataAccesLayer();
             //List<Compania> lstCia = eTLDataAccesLayer.CadenaConexionETL_lst(id_compania);
+            Empresa empresa = new Empresa();
+            empresa.usuario_etl = lstCia[0].usuario_etl;
+            empresa.contrasenia_etl = lstCia[0].contrasenia_etl;
+            empresa.contra_bytes = lstCia[0].contra_bytes;
+            empresa.apuntador = lstCia[0].apuntador;
+            empresa.llave = lstCia[0].llave;
+            empresa.host = lstCia[0].host;
+            empresa.puerto_compania = lstCia[0].puerto_compania;
+            empresa.bd_name = lstCia[0].bd_name;
+            empresa.id = lstCia[0].id;
+            empresa.nombre = lstCia[0].nombre;
 
-            Compania cia = new Compania();
-            cia.STR_USUARIO_ETL = lstCia[0].STR_USUARIO_ETL;
-            cia.STR_CONTRASENIA_ETL = lstCia[0].STR_CONTRASENIA_ETL;
-            cia.STR_HOST_COMPANIA = lstCia[0].STR_HOST_COMPANIA;
-            cia.STR_PUERTO_COMPANIA = lstCia[0].STR_PUERTO_COMPANIA;
-            cia.STR_BD_COMPANIA = lstCia[0].STR_BD_COMPANIA;
-            cia.INT_IDCOMPANIA_P = lstCia[0].INT_IDCOMPANIA_P;
+            string ctr = string.Empty;
+
+            ctr = Utilerias.DecryptStringFromBytes(empresa.contra_bytes, empresa.llave, empresa.apuntador);
+            empresa.contrasenia_etl = ctr;
+
 
             string ODBC_PATH = string.Empty;
             string driver = string.Empty;
@@ -44,7 +53,7 @@ namespace WindowsService1.Util
             {
                 ODBC_PATH = "SOFTWARE\\ODBC\\ODBC.INI\\";
                 driver = "SQL Anywhere 12"; //Nombre del Driver
-                DsnNombre = cia.STR_NOMBRE_COMPANIA + "_" + cia.INT_IDCOMPANIA_P + "_" + cia.STR_HOST_COMPANIA; //nombre con el que se va identificar el DSN
+                DsnNombre = empresa.id + "_" + empresa.nombre.Substring(0, 5).TrimEnd().Replace(" ", "_") + "_" + empresa.host; //nombre con el que se va identificar el DSN
                 Descri = "DNS_Sybase" + DsnNombre;
                 DireccionDriver = "C:\\Program Files\\SQL Anywhere 12\\Bin64\\dbodbc12.dll";
                 var datasourcesKey = Registry.LocalMachine.CreateSubKey(ODBC_PATH + "ODBC Data Sources");
@@ -74,15 +83,15 @@ namespace WindowsService1.Util
                     throw new Exception("No se creó la clave de registro ODBC para DSN");
                 }
 
-                dsnKey.SetValue("Database", cia.STR_BD_COMPANIA);
+                dsnKey.SetValue("Database", empresa.bd_name);
                 dsnKey.SetValue("Description", Descri);
                 dsnKey.SetValue("Driver", DireccionDriver);
-                dsnKey.SetValue("User", cia.STR_USUARIO_ETL);
-                dsnKey.SetValue("Host", cia.STR_HOST_COMPANIA + ":" + cia.STR_PUERTO_COMPANIA);
-                dsnKey.SetValue("Server", cia.STR_HOST_COMPANIA);
-                dsnKey.SetValue("Database", cia.STR_BD_COMPANIA);
-                dsnKey.SetValue("username", cia.STR_USUARIO_ETL);
-                dsnKey.SetValue("password", cia.STR_CONTRASENIA_ETL);
+                dsnKey.SetValue("User", empresa.usuario_etl);
+                dsnKey.SetValue("Host", empresa.host + ":" + empresa.puerto_compania);
+                dsnKey.SetValue("Server", empresa.host);
+                dsnKey.SetValue("Database", empresa.bd_name);
+                dsnKey.SetValue("username", empresa.usuario_etl);
+                dsnKey.SetValue("password", empresa.contrasenia_etl);
                 dsnKey.SetValue("Trusted_Connection", trustedConnection ? "Yes" : "No");
 
                 DSN dsn = new DSN();
@@ -93,12 +102,15 @@ namespace WindowsService1.Util
             }
             catch (Exception ex)
             {
+                
+
                 string error = ex.Message;
 
                 DSN dsn = new DSN();
                 dsn.creado = false;
                 dsn.nombreDSN = DsnNombre;
-                return dsn;
+                throw;
+                //return dsn;
                 //return 0; //Nose creo
             }
         }

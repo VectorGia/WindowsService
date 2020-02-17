@@ -10,7 +10,7 @@ namespace WindowsService1.Conexion
     public class Conexion
     {
 
-        string cadena = "";
+  
         NpgsqlConnection con;
         OdbcConnection odbcCon;
 
@@ -19,7 +19,7 @@ namespace WindowsService1.Conexion
         public NpgsqlConnection ConnexionDB()
 
         {
-            con = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=127.0.0.1;Port=5432;Database=GIA;Pooling=true;");
+            con = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=127.0.0.1;Port=5432;Database=GIA31;Pooling=true;");
             return con;
         }
 

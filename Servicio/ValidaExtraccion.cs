@@ -10,15 +10,17 @@ namespace WindowsService1.Servicio
 {
     public class ValidaExtraccion
     {
-        NpgsqlConnection conP = new NpgsqlConnection();
-        NpgsqlCommand comP = new NpgsqlCommand();
+        NpgsqlConnection con = new NpgsqlConnection();
+        Conexion.Conexion conex = new Conexion.Conexion();
+        NpgsqlCommand com = new NpgsqlCommand();
         char cod = '"';
 
         public ValidaExtraccion()
         {
             //Constructor
             //conP = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=192.168.1.78;Port=5433;Database=GIA;Pooling=true;");
-            conP = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=127.0.0.1;Port=5432;Database=GIA;Pooling=true;");
+            //con = new NpgsqlConnection("User ID=postgres;Password=omnisys;Host=127.0.0.1;Port=5432;Database=GIA;Pooling=true;");
+            con = conex.ConnexionDB();
         }
 
         /// <summary>
@@ -27,18 +29,25 @@ namespace WindowsService1.Servicio
         /// <returns>Data Table TAB_ETL_PROG</returns> 
         public DataTable FechaExtra()
         {
-            string consulta = "SELECT " + cod + "INT_ID_ETL_PROG" + cod + ","
-                + cod + "TEXT_FECH_EXTR" + cod + ","
-                + cod + "TEXT_HORA_EXTR" + cod + ","
-                + cod + "INT_ID_EMPRESA" + cod
-                + " FROM " + cod + "TAB_ETL_PROG" + cod;
-            //+ " WHERE " + cod + "INT_ID_EMPRESA" + cod + " = " + id_empresa;
+            ////string consulta = "SELECT " + cod + "INT_ID_ETL_PROG" + cod + ","
+            ////    + cod + "TEXT_FECH_EXTR" + cod + ","
+            ////    + cod + "TEXT_HORA_EXTR" + cod + ","
+            ////    + cod + "INT_ID_EMPRESA" + cod
+            ////    + " FROM " + cod + "TAB_ETL_PROG" + cod;
+            //////+ " WHERE " + cod + "INT_ID_EMPRESA" + cod + " = " + id_empresa;
+
+            string consulta = " select  id ,"
+                + " fecha_extraccion ," 
+                + " hora_extraccion ," 
+                + " id_empresa " 
+                + " from  etl_prog " ;
+                //+ " where  id_empresa  = " + id_empresa;
 
             try
             {
-                conP.Open();
-                comP = new Npgsql.NpgsqlCommand(consulta, conP);
-                Npgsql.NpgsqlDataAdapter daP = new Npgsql.NpgsqlDataAdapter(comP);
+                con.Open();
+                com = new Npgsql.NpgsqlCommand(consulta, con);
+                Npgsql.NpgsqlDataAdapter daP = new Npgsql.NpgsqlDataAdapter(com);
 
                 DataTable dt = new DataTable();
                 daP.Fill(dt);
@@ -46,30 +55,30 @@ namespace WindowsService1.Servicio
             }
             catch (Exception ex)
             {
-                conP.Close();
+                con.Close();
                 string error = ex.Message;
                 throw;
             }
             finally
             {
-                conP.Close();
+                con.Close();
             }
         }
 
-        public List<TAB_ETL_PROG> lstParametros()
+        public List<ETLProg> lstParametros()
         {
-            List<TAB_ETL_PROG> lstEtlP = new List<TAB_ETL_PROG>();
+            List<ETLProg> lstEtlP = new List<ETLProg>();
             DataTable dt = new DataTable();
             dt = FechaExtra();
             foreach (DataRow r in dt.Rows)
             {
-                TAB_ETL_PROG ETLPROG = new TAB_ETL_PROG();
-                ETLPROG.INT_ID_ETL_PROG = Convert.ToInt32(r["INT_ID_ETL_PROG"]);
-                ETLPROG.TEXT_FECH_EXTR = r["TEXT_FECH_EXTR"].ToString();
-                ETLPROG.TEXT_HORA_EXTR = r["TEXT_HORA_EXTR"].ToString();
-                ETLPROG.INT_ID_EMPRESA = Convert.ToInt32(r["INT_ID_EMPRESA"]);
+                ETLProg etlProg = new ETLProg();
+                etlProg.id = Convert.ToInt32(r["id"]);
+                etlProg.fecha_extraccion = r["fecha_extraccion"].ToString();
+                etlProg.hora_extraccion = r["hora_extraccion"].ToString();
+                etlProg.id_empresa = Convert.ToInt32(r["id_empresa"]);
 
-                lstEtlP.Add(ETLPROG);
+                lstEtlP.Add(etlProg);
             }
             return lstEtlP;
         }
@@ -82,52 +91,60 @@ namespace WindowsService1.Servicio
         /// <returns></returns>
         public DataTable existeExtr()
         {
-            TAB_ETL_PROG tab_etl_prog = new TAB_ETL_PROG();
-            List<TAB_ETL_PROG> lstPara = lstParametros();
+            ETLProg tab_etl_prog = new ETLProg();
+            List<ETLProg> lstPara = lstParametros();
 
-            string consulta = "SELECT 1 as EXISTE, " + cod + "INT_TIPO_EXTRACCION" + cod + ","
-                   + cod + "TEXT_FECH_EXTR" + cod + ","
-                   + cod + "TEXT_HORA" + cod + ","
-                   + cod + "INT_ID_EMPRESA" + cod
-                   + " FROM " + cod + "TAB_BALANZA" + cod
-                   + " WHERE" + cod + "INT_ID_EMPRESA" + cod + " = " + lstPara[0].INT_ID_EMPRESA //tab_etl_prog.INT_ID_EMPRESA
-                   + " AND " + cod + "INT_TIPO_EXTRACCION" + cod +" = 2";
+            string consulta = " select 1 as existe, tipo_extraccion, "
+                + " fecha_carga, "
+                + " hora_carga, "
+                + " id_empresa "
+                + " from balanza "
+                + " where id_empresa = " + lstPara[0].id
+                + " and tipo_extraccion = " + 2;
+
+            //string consulta = "SELECT 1 as EXISTE, " + cod + "INT_TIPO_EXTRACCION" + cod + ","
+            //       + cod + "TEXT_FECH_EXTR" + cod + ","
+            //       + cod + "TEXT_HORA" + cod + ","
+            //       + cod + "INT_ID_EMPRESA" + cod
+            //       + " FROM " + cod + "TAB_BALANZA" + cod
+            //       + " WHERE" + cod + "INT_ID_EMPRESA" + cod + " = " + lstPara[0].id //tab_etl_prog.INT_ID_EMPRESA
+            //       + " AND " + cod + "INT_TIPO_EXTRACCION" + cod +" = 2";
             try
             {
-                conP.Open();
-                comP = new Npgsql.NpgsqlCommand(consulta, conP);
-                Npgsql.NpgsqlDataAdapter daP = new Npgsql.NpgsqlDataAdapter(comP);
-                conP.Close();
+                con.Open();
+                com = new Npgsql.NpgsqlCommand(consulta, con);
+                Npgsql.NpgsqlDataAdapter daP = new Npgsql.NpgsqlDataAdapter(com);
+                con.Close();
                 DataTable dt = new DataTable();
                 daP.Fill(dt);
                 return dt;
             }
             catch (Exception ex)
             {
-                conP.Close();
+                con.Close();
                 string error = ex.Message;
                 throw;
             }
             finally
             {
-                conP.Close();
+                con.Close();
             }
         }
 
-        public List<TAB_ETL_PROG> lstExisteExtr()
+        public List<ETLProg> lstExisteExtr()
         {
-            List<TAB_ETL_PROG> lstEtlP = new List<TAB_ETL_PROG>();
+            List<ETLProg> lstEtlP = new List<ETLProg>();
             DataTable dt = new DataTable();
             dt = existeExtr();
             foreach (DataRow r in dt.Rows)
             {
-                TAB_ETL_PROG ETLPROG = new TAB_ETL_PROG();
-                ETLPROG.INT_ID_ETL_PROG = Convert.ToInt32(r["INT_ID_ETL_PROG"]);
-                ETLPROG.TEXT_FECH_EXTR = r["TEXT_FECH_EXTR"].ToString();
-                ETLPROG.TEXT_HORA_EXTR = r["TEXT_HORA_EXTR"].ToString();
-                ETLPROG.INT_ID_EMPRESA = Convert.ToInt32(r["INT_ID_EMPRESA"]);
-                ETLPROG.EXISTE = Convert.ToInt32(r["EXISTE"]);
-                lstEtlP.Add(ETLPROG);
+                ETLProg etlProg = new ETLProg();
+                etlProg.id = Convert.ToInt32(r["id"]);
+                etlProg.fecha_extraccion = r["fecha_extraccion"].ToString();
+                etlProg.hora_extraccion = r["hora_extraccion"].ToString();
+                etlProg.id_empresa = Convert.ToInt32(r["id_empresa"]);
+                //etlProg.EXISTE = Convert.ToInt32(r["EXISTE"]);
+                lstEtlP.Add(etlProg);
             }
             return lstEtlP;
         }

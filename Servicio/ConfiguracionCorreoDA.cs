@@ -8,17 +8,16 @@ using WindowsService1.Models;
 
 namespace WindowsService1.Servicio
 {
-    public class ConfiguracionCorreo
+    public class ConfiguracionCorreoDA
 
     {
         NpgsqlConnection con;
         Conexion.Conexion conex = new Conexion.Conexion();
         char cod = '"';
 
-        public ConfiguracionCorreo()
+        public ConfiguracionCorreoDA()
         {
-            //con = conex.ConnexionDB("User ID=postgres;Password=omnisys;Host=192.168.1.78;Port=5432;Database=GIA;Pooling=true;");
-            con = conex.ConnexionDB();
+             con = conex.ConnexionDB();
         }
 
         public void EnviarCorreo(string cuerpoMensaje, string tituloMensaje)
@@ -35,16 +34,16 @@ namespace WindowsService1.Servicio
             mmsg.Body = cuerpoMensaje;//"Prueba de correo GIA";
             mmsg.BodyEncoding = System.Text.Encoding.UTF8;
             mmsg.IsBodyHtml = false;
-            mmsg.From = new System.Net.Mail.MailAddress(listaConfiguracionCorreo[0].TEXT_FROM);
+            mmsg.From = new System.Net.Mail.MailAddress(listaConfiguracionCorreo[0].remitente);
 
             System.Net.Mail.SmtpClient cliente = new System.Net.Mail.SmtpClient();
 
-            cliente.Host = listaConfiguracionCorreo[0].TEXT_HOST;
-            cliente.Port = listaConfiguracionCorreo[0].INT_PORT;
+            cliente.Host = listaConfiguracionCorreo[0].host;
+            cliente.Port = listaConfiguracionCorreo[0].puerto;
             cliente.EnableSsl = true;
             cliente.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network;
             cliente.UseDefaultCredentials = false;
-            cliente.Credentials = new System.Net.NetworkCredential(listaConfiguracionCorreo[0].TEXT_FROM, listaConfiguracionCorreo[0].TEXT_PASSWORD);
+            cliente.Credentials = new System.Net.NetworkCredential(listaConfiguracionCorreo[0].remitente, listaConfiguracionCorreo[0].password);
            
        
 
@@ -70,7 +69,7 @@ namespace WindowsService1.Servicio
             lista = GetDestinatariosCorreo();
             foreach (Usuario usuario in lista)
             {
-                correos += usuario.STR_EMAIL_USUARIO.ToString() + ",";
+                correos += usuario.email.ToString() + ",";
             }
             return correos;
 
@@ -80,8 +79,12 @@ namespace WindowsService1.Servicio
         {
 
 
-            string cadena = "SELECT " + cod + "TEXT_FROM" + cod + "," + cod + "TEXT_PASSWORD" + cod + ","
-                              + cod + "INT_PORT" + cod + "," + cod + "INT_ID_CORREO" + cod + "," + cod + "TEXT_HOST" + cod + " FROM " + cod + "TAB_CONFIG_CORREO" + cod;
+            string cadena = "SELECT  remitente ,"
+                           + " password,"
+                           + " puerto ,"
+                           + " id,"
+                           + " host "
+                           + " FROM CONFIG_CORREO ";
 
             try
             {
@@ -97,11 +100,11 @@ namespace WindowsService1.Servicio
                     {
 
                         ConfigCorreo configCorreo = new ConfigCorreo();
-                        configCorreo.INT_ID_CORREO = Convert.ToInt32(rdr["INT_ID_CORREO"]);
-                        configCorreo.TEXT_FROM = rdr["TEXT_FROM"].ToString().Trim();
-                        configCorreo.TEXT_PASSWORD = rdr["TEXT_PASSWORD"].ToString().Trim();
-                        configCorreo.INT_PORT = Convert.ToInt32(rdr["INT_PORT"]);
-                        configCorreo.TEXT_HOST = rdr["TEXT_HOST"].ToString().Trim();
+                        configCorreo.id = Convert.ToInt32(rdr["id"]);
+                        configCorreo.remitente = rdr["remitente"].ToString().Trim();
+                        configCorreo.password = rdr["password"].ToString().Trim();
+                        configCorreo.puerto = Convert.ToInt32(rdr["puerto"]);
+                        configCorreo.host = rdr["host"].ToString().Trim();
 
 
                         listaConfigCorreo.Add(configCorreo);
@@ -121,11 +124,11 @@ namespace WindowsService1.Servicio
         {
 
 
-            string cadena = "SELECT "
-                            + cod + "STR_EMAIL_USUARIO" + cod
-                            + " FROM "
-                            + cod + "TAB_USUARIO" + cod
-                            + " WHERE " + cod + "STR_EMAIL_USUARIO" + cod + "!='sin Correo'";
+            string cadena = "  SELECT "
+                + " email"
+                + " FROM "
+                + " USUARIO"
+                + " WHERE  email != 'sin Correo' ";
 
             try
             {
@@ -141,7 +144,7 @@ namespace WindowsService1.Servicio
                     {
 
                         Usuario configUsuarioCorreo = new Usuario();
-                        configUsuarioCorreo.STR_EMAIL_USUARIO = rdr["STR_EMAIL_USUARIO"].ToString().Trim();
+                        configUsuarioCorreo.email = rdr["email"].ToString().Trim();
 
 
 

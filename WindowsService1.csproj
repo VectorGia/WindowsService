@@ -82,9 +82,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Conexion\Conexion.cs" />
-    <Compile Include="Models\Compania.cs" />
+    <Compile Include="Models\Empresa.cs" />
     <Compile Include="Models\ConfigCorreo.cs" />
     <Compile Include="Models\DSN.cs" />
+    <Compile Include="Models\Proceso.cs" />
     <Compile Include="Models\ScSaldoConCc.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="ProjectInstaller.cs">
@@ -102,11 +103,14 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\Balanza.cs" />
-    <Compile Include="Servicio\ConfiguracionCorreo.cs" />
-    <Compile Include="Servicio\ETL.cs" />
-    <Compile Include="Models\TAB_ETL_PROG.cs" />
+    <Compile Include="Servicio\ConfiguracionCorreoDA.cs" />
+    <Compile Include="Servicio\ETLBalanzaDA.cs" />
+    <Compile Include="Models\ETLProg.cs" />
+    <Compile Include="Servicio\ProcesoDA.cs" />
     <Compile Include="Servicio\ValidaExtraccion.cs" />
+    <Compile Include="Util\Constantes.cs" />
     <Compile Include="Util\DSNConfig.cs" />
+    <Compile Include="Util\Utilerias.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

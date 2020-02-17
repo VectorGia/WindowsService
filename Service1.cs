@@ -137,9 +137,9 @@ namespace WindowsService1
             Proceso proceso = new Proceso();
             try
             {
-                //archivo = etlBalanza.generarSalContCC_CSV(idEmpresa, ruta);
+                archivo = etlBalanza.generarSalContCC_CSV(idEmpresa, ruta);
                 //prueba
-                archivo = "PruebaBalanzaRecrotado.csv";
+                //archivo = "PruebaBalanzaRecrotado.csv";
 
                 int cantRegAfectados = etlBalanza.copy_balanza(archivo, ruta);
 
